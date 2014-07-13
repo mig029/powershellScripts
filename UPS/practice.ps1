@@ -2,7 +2,7 @@ $testData = Get-Content "D:\Users\Anthony\Desktop\readData.txt"
 $last = 0
 
 $test = 0
-
+$pattern =  '(?<=\<[tT][dD]\>)'
 $findusers = '[A-Z][A-Z][A-Z][A-Z][A-Z0-9][0-9][0-9][0-9][0-9][A-Z]'
 $scanners =  $testData | select-string -Pattern $findusers -AllMatches | % { $_.Matches } | % { $_.Value }
 
@@ -12,40 +12,29 @@ $day = get-date -format "dd"
 $year = get-date -format "yy"
 
 $scans = 0
-$pph = 0
+$pph = @() #create empty array
 
 
 $results =""
+$index = 0
 foreach($scanner in $scanners)
 {
 	$link = "http://bldg-web-pri/gss/OpMnr/EmployeeMonitor.asp?Date=$month%2F$day%2F$year&Sort=07&Employee=$scanner&Accept=Accept"
 	$link2 = "http://bldg-web-pri/gss/OpMnr/EmployeeMonitor.asp?Date=$month%2F$day%2F$year&Sort=07&Employee=$empID&Accept=Accept"
-	$result2 = $testData | select-string -Pattern '(?<=\<[tT][dD]\>&nbsp;)(.*?)(?=\<\/[tT][dD])' -AllMatches | % { $_.Matches } | % { $_.Value }
+	$result2 = $testData | select-string -Pattern $pattern -AllMatches | % { $_.Matches } | % { $_.Value }
 	#$string2 = $web.DownloadString($link2)
+	[int32]::TryParse($result2[14], [ref]$test)
+	if($result2[14] -ge 0)
+	{
+	    $last15 = [int32]($test - $last15)
+	}
 	$results += [string]::Format("$scanner {0}`n", $result2[9])
 	
 }
 
 
-
-$results
-$link = "http://bldg-web-pri/gss/OpMnr/EmployeeMonitor.asp?Date=$month%2F$day%2F$year&Sort=07&Employee=$empID&Accept=Accept"
-$link = "http://bldg-web-pri.mdhag.us.ups.com/gss/Scor/UserFollowUp.asp?Date=$month%2F$day%2F$year&Sort=07&Employee=$empID&Accept=Accept"
-
- 
-#$pattern =  "(?<=\<[tT][dD]\>)" #"(?<=\<[tT][dD]\>)(.*?)(?<=\<\/[tT][dD])"
-
 $web = New-Object Net.WebClient
 #$string = $web.DownloadString($link)
-
-
-
-
-#[int32]::TryParse($result2[14], [ref]$test)
-#if($result2[14] -ge 0)
-#{
-#    $last15 = [int32]($test - $last15)
-#}
 
 $index = 0
  
